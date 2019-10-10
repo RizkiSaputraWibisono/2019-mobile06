@@ -1,39 +1,37 @@
 package id.ac.polinema.idealbodyweight.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
-import android.nfc.Tag;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
+import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import id.ac.polinema.idealbodyweight.R;
+import id.ac.polinema.idealbodyweight.util.BMIindex;
+import id.ac.polinema.idealbodyweight.util.BrocaIndex;
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link ResultFragment.OnFragmentInteractionListener} interface
+ * {@link BMIindexFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class ResultFragment extends Fragment {
+public class BMIindexFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
-    private String information;
 
-    public void setInformation(String information) {
-        this.information = information;
-    }
-
-    public ResultFragment() {
+    public BMIindexFragment() {
         // Required empty public constructor
-
     }
 
 
@@ -41,35 +39,31 @@ public class ResultFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_result, container, false);
-        TextView informationText = view.findViewById(R.id.textInformation);
-        String tag = null;
-        String [] arr = {"broca", "bmi"};
-        Fragment fragment = null;
-        for (int i=0; i<arr.length; i++){
-            fragment = getFragmentManager().findFragmentByTag(arr[i].toString());
-            if (fragment instanceof  BrocaIndexFragment) {
-                tag = fragment.getTag().toString();
-            }else if(fragment instanceof BMIindexFragment) {
-                tag = fragment.getTag().toString();
-            }
-        }
+        View view = inflater.inflate(R.layout.fragment_bmiindex, container, false);
+        final EditText heightText  = view.findViewById(R.id.heightText);
+        final EditText weightText  = view.findViewById(R.id.weightText);
 
-        informationText.setText(information);
-        final String finalTag = tag;
-
-        Button tryAgainButton = view.findViewById(R.id.buttontry);
-        tryAgainButton.setOnClickListener(new View.OnClickListener() {
+        Button calculateButton = view.findViewById(R.id.buttonBMI);
+        calculateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mListener != null) {
-                    mListener.onTryAgainButtonClicked(finalTag);
-//                    Toast.makeText(getActivity(),finalTag,Toast.LENGTH_LONG).show();
-//                    Toast.makeText(getActivity(),finalTag,Toast.LENGTH_LONG).show();
+                if(mListener != null){
+                    String weightString = weightText.getText().toString();
+                    String heightString = heightText.getText().toString();
+
+                    if(!weightString.equals("") && !heightString.equals("")) {
+
+                        int weight = Integer.parseInt(weightString);
+                        int  height = Integer.parseInt(heightString);
+                        BMIindex bmIindex = new BMIindex(weight, height);
+                        mListener.onCalculateBMIIndexClicked(bmIindex.getIndex());
+                    }else {
+                        Toast.makeText(getActivity(), "Please Input Your Weight and Input Your Height", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
-        return  view;
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -78,7 +72,7 @@ public class ResultFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
+        if(context instanceof OnFragmentInteractionListener){
             mListener = (OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
@@ -103,7 +97,7 @@ public class ResultFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        void onTryAgainButtonClicked(String tag);
+        // TODO: Update argument type and name
+        void onCalculateBMIIndexClicked(float index);
     }
-
 }
